@@ -1,0 +1,14 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<div class="container">
+<h2>Players</h2>
+
+{% for p in players %}
+<div class="card">
+<h3>{{p.name}}</h3>
+<p>{{p.role}}</p>
+<p>{{p.description}}</p>
+<p>{{p.location}}</p>
+<a href="/connect/{{p.id}}">Connect</a>
+</div>
+{% endfor %}
+</div>

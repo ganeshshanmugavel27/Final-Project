@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register | SportsLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR (Public) -->
+<div class="navbar">
+    <div class="logo">SportsLink</div>
+
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/login">Login</a>
+    </div>
+</div>
+
+<!-- REGISTER FORM -->
+<div class="container">
+    <div class="card">
+        <h2>Register</h2>
+
+        {% for c, m in get_flashed_messages(with_categories=true) %}
+            <p class="alert {{ c }}">{{ m }}</p>
+        {% endfor %}
+
+        <form method="post">
+            <input name="name" placeholder="Name" required>
+
+            <input name="email" type="email" placeholder="Email" required>
+
+            <input name="password" type="password" placeholder="Password" required>
+
+            <select name="role" required>
+                <option value="">Select Role</option>
+                <option value="player">Player</option>
+                <option value="team">Team</option>
+            </select>
+
+            <button>Create Account</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

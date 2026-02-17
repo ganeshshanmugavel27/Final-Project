@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Team Dashboard | SportsLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR (Logged-in) -->
+<div class="navbar">
+    <div class="logo">SportsLink</div>
+
+    <div class="nav-links">
+        <a href="/search">Search</a>
+        <a href="/connections">Connections</a>
+    </div>
+
+    <div class="profile-menu">
+        <img src="https://i.imgur.com/6VBx3io.png" class="avatar">
+        <div class="dropdown">
+            <a href="/profile">My Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+</div>
+
+<!-- DASHBOARD CONTENT -->
+<div class="container">
+    <div class="card">
+        <h2>Post Player Requirement</h2>
+
+        <form method="post">
+            <input name="role" placeholder="Required Role (Leg Spinner)" required>
+
+            <!-- REAL APPLICATION LOCATION -->
+            <select name="location" required>
+                <option value="">Select Location</option>
+                <option>Chennai</option>
+                <option>Coimbatore</option>
+                <option>Madurai</option>
+                <option>Salem</option>
+                <option>Trichy</option>
+                <option>Erode</option>
+            </select>
+
+            <button>Find Players</button>
+        </form>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <a href="/matches">
+            <button>View Matching Players</button>
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+body { background:#f3f2ef; font-family:Segoe UI; }
+.navbar {
+    background:white; padding:10px 40px;
+    display:flex; justify-content:space-between;
+}
+.logo { font-size:22px; color:#0a66c2; font-weight:bold; }
+.container { max-width:900px; margin:30px auto; }
+.card {
+    background:white; padding:20px;
+    border-radius:8px; margin-bottom:20px;
+}
+input, textarea, select {
+    width:100%; padding:10px; margin:8px 0;
+}
+button {
+    background:#0a66c2; color:white;
+    padding:10px; border:none;
+}
+.avatar { width:40px; border-radius:50%; cursor:pointer; }
+.profile-menu { position:relative; }
+.dropdown {
+    display:none; position:absolute; right:0;
+    background:white; box-shadow:0 2px 6px #aaa;
+}
+.profile-menu:hover .dropdown { display:block; }

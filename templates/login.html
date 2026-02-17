@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | SportsLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR (Public) -->
+<div class="navbar">
+    <div class="logo">SportsLink</div>
+
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/register">Register</a>
+    </div>
+</div>
+
+<!-- LOGIN FORM -->
+<div class="container">
+    <div class="card">
+        <h2>Login</h2>
+
+        {% for c, m in get_flashed_messages(with_categories=true) %}
+            <p class="alert {{ c }}">{{ m }}</p>
+        {% endfor %}
+
+        <form method="post">
+            <input name="email" placeholder="Email" required>
+            <input name="password" type="password" placeholder="Password" required>
+            <button>Login</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

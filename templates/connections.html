@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connections | SportsLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">SportsLink</div>
+
+    <div class="nav-links">
+        <a href="/search">Search</a>
+        <a href="/connections">Connections</a>
+    </div>
+
+    <div class="profile-menu">
+        <img src="https://i.imgur.com/6VBx3io.png" class="avatar">
+        <div class="dropdown">
+            <a href="/profile">My Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="container">
+    <div class="card">
+        <h2>Connection Requests</h2>
+
+        {% for c in conns %}
+            <p>{{ c.name }} – {{ c.status }}</p>
+        {% else %}
+            <p>No connection requests</p>
+        {% endfor %}
+
+        <a href="/profile">← Back to Profile</a>
+    </div>
+</div>
+
+</body>
+</html>
