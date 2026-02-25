@@ -1,0 +1,185 @@
+
+{% extends "base.html" %}
+{% block title %}SportsLink – Connect Players & Teams{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Find Your Team.<br>Build Your Legacy.</h1>
+    <p>SportsLink connects talented players with the teams that need them
+       — using smart skill-matching to make the right connections.</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+        Get Started Free
+      </a>
+      <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg">Log In</a>
+    </div>
+  </div>
+  <div class="hero-graphic">🏆</div>
+</section>
+
+<!-- Stats Bar -->
+<section class="stats-bar">
+  <div class="stat">
+    <span class="stat-num">{{ player_count }}</span>
+    <span class="stat-label">Registered Players</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">{{ team_count }}</span>
+    <span class="stat-label">Team Openings</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">10+</span>
+    <span class="stat-label">Sports Supported</span>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="features">
+  <h2 class="section-title">How It Works</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">👤</div>
+      <h3>Create Your Profile</h3>
+      <p>Players list sport, position, skills and experience to be discovered.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <h3>Teams Post Openings</h3>
+      <p>Team managers post requirements with the skills they need.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3>Smart Matching</h3>
+      <p>Our algorithm ranks players by how well they match each opening.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>AI Recommendations</h3>
+      <p>AI engine suggests the best players using multi-factor scoring.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 🔥 Trending Players Section -->
+{% if trending_players %}
+<section class="trending-section">
+  <div class="trending-header">
+    <h2>🔥 Trending Players</h2>
+    <p>Most viewed and highly rated players this week</p>
+    <a href="{{ url_for('view_players') }}" class="btn btn-outline btn-sm">
+      View All →
+    </a>
+  </div>
+
+  <div class="trending-grid">
+    {% for entry in trending_players %}
+    <div class="trending-card">
+
+      <!-- Trending rank badge -->
+      <div class="trending-rank">
+        {% if loop.index == 1 %}🔥
+        {% elif loop.index == 2 %}⚡
+        {% elif loop.index == 3 %}✨
+        {% else %}#{{ loop.index }}
+        {% endif %}
+      </div>
+
+      <!-- Avatar -->
+      <div class="trending-avatar-wrap">
+        {% if entry.player.user.avatar and entry.player.user.avatar != 'default.png' %}
+          <img src="{{ url_for('static', filename='uploads/' + entry.player.user.avatar) }}"
+               class="trending-avatar-img"/>
+        {% else %}
+          <div class="trending-avatar">
+            {{ entry.player.user.username[0].upper() }}
+          </div>
+        {% endif %}
+        <!-- Sport badge overlay -->
+        <span class="trending-sport-overlay">{{ entry.player.sport[:3] }}</span>
+      </div>
+
+      <!-- Info -->
+      <div class="trending-info">
+        <strong>{{ entry.player.user.username }}</strong>
+        <span>{{ entry.player.position }}</span>
+
+        <!-- Stars -->
+        <div class="trending-stars">
+          {% for i in range(1, 6) %}
+            <span style="color:{% if i <= entry.player.avg_rating() %}
+              #f59e0b{% else %}#d1d5db{% endif %}; font-size:.85rem">★</span>
+          {% endfor %}
+          <small>{{ entry.player.avg_rating() }}</small>
+        </div>
+
+        <!-- Stats row -->
+        <div class="trending-stats">
+          <span>👁 {{ entry.player.profile_views }}</span>
+          <span>🎖 {{ entry.endorsement_count }}</span>
+          <span>📅 {{ entry.player.experience_years }}yr</span>
+        </div>
+
+        <!-- Skills preview -->
+        <div class="skills-row" style="margin:6px 0">
+          {% for skill in entry.player.skills_list()[:3] %}
+            <span class="skill-tag" style="font-size:.72rem">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Match % badge -->
+      <div class="trending-match-badge">
+        <div class="match-pct-circle">
+          <span>{{ entry.trend_score }}</span>
+          <small>score</small>
+        </div>
+      </div>
+
+      <a href="{{ url_for('player_detail', player_id=entry.player.id) }}"
+         class="btn btn-primary btn-sm trending-btn">View Profile</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SportsLink | LinkedIn for Sports</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">SportsLink</div>
+
+    <div class="nav-links">
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+    </div>
+</div>
+
+<!-- HERO SECTION -->
+<div class="container">
+    <div class="card">
+        <h1>Find Players. Build Teams.</h1>
+        <p>
+            SportsLink is a professional sports networking platform that
+            connects <b>solo players</b> and <b>teams</b> based on
+            <b>role</b>, <b>skills</b>, and <b>location</b>.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>
+

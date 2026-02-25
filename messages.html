@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Messages – SportsLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>💬 Messages</h1>
+</div>
+
+{% if conversations %}
+  <div class="conversations-list card">
+    {% for conv in conversations %}
+    <a href="{{ url_for('chat', user_id=conv.contact.id) }}" class="conversation-row {% if conv.unread > 0 %}conv-unread{% endif %}">
+      <!-- Avatar -->
+      {% if conv.contact.avatar and conv.contact.avatar != 'default.png' %}
+        <img src="{{ url_for('static', filename='uploads/' + conv.contact.avatar) }}" class="conv-avatar-img"/>
+      {% else %}
+        <div class="conv-avatar">{{ conv.contact.username[0].upper() }}</div>
+      {% endif %}
+
+      <!-- Info -->
+      <div class="conv-info">
+        <div class="conv-name-row">
+          <strong>{{ conv.contact.username }}</strong>
+          <span class="badge badge-{{ conv.contact.role }}">{{ conv.contact.role }}</span>
+          {% if conv.unread > 0 %}
+            <span class="unread-badge">{{ conv.unread }} new</span>
+          {% endif %}
+        </div>
+        <p class="conv-preview">
+          {% if conv.last_msg %}
+            {% if conv.last_msg.sender_id == current_user.id %}You: {% endif %}
+            {{ conv.last_msg.body[:60] }}{% if conv.last_msg.body|length > 60 %}...{% endif %}
+          {% endif %}
+        </p>
+      </div>
+      <small class="conv-time">
+        {% if conv.last_msg %}
+          {{ conv.last_msg.created_at.strftime('%b %d') }}
+        {% endif %}
+      </small>
+    </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card empty-card">
+    <div class="empty-icon">💬</div>
+    <h3>No Messages Yet</h3>
+    <p>Start a conversation by visiting a player's profile and clicking "Send Message".</p>
+    <a href="{{ url_for('view_players') }}" class="btn btn-primary">Browse Players</a>
+  </div>
+{% endif %}
+{% endblock %}

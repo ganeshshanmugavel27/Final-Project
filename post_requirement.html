@@ -1,0 +1,126 @@
+
+{% extends "base.html" %}
+{% block title %}Post Opening – SportsLink{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <h2>Post a Player Opening</h2>
+    <p class="form-subtitle">Describe who you're looking for</p>
+
+    <form method="POST" action="{{ url_for('post_requirement') }}" novalidate>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="team_name">Team Name *</label>
+          <input type="text" id="team_name" name="team_name" placeholder="e.g. Thunder FC" required/>
+        </div>
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input type="text" id="location" name="location" placeholder="e.g. Chennai, India"/>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sport">Sport *</label>
+          <select id="sport" name="sport" required>
+            <option value="">– Select Sport –</option>
+            {% set sports = ['Football','Basketball','Cricket','Tennis','Volleyball','Baseball','Rugby','Hockey','Swimming','Athletics','Badminton','Table Tennis'] %}
+            {% for s in sports %}
+              <option value="{{ s }}">{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="position">Position Needed *</label>
+          <input type="text" id="position" name="position" placeholder="e.g. Striker, Center Back" required/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="skills_required">Required Skills <span class="hint">(comma-separated)</span> *</label>
+        <input type="text" id="skills_required" name="skills_required"
+               placeholder="e.g. dribbling, shooting, set pieces" required/>
+        <small>Players will be ranked by how many of these skills they have</small>
+      </div>
+
+      <div class="form-group">
+        <label for="min_experience">Minimum Experience (years)</label>
+        <input type="number" id="min_experience" name="min_experience" min="0" max="50" value="0"/>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Additional Details</label>
+        <textarea id="description" name="description" rows="4"
+                  placeholder="Training schedule, commitment level, trials info..."></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Post Opening</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Team Dashboard | SportsLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR (Logged-in) -->
+<div class="navbar">
+    <div class="logo">SportsLink</div>
+
+    <div class="nav-links">
+        <a href="/search">Search</a>
+        <a href="/connections">Connections</a>
+    </div>
+
+    <div class="profile-menu">
+        <img src="https://i.imgur.com/6VBx3io.png" class="avatar">
+        <div class="dropdown">
+            <a href="/profile">My Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+</div>
+
+<!-- DASHBOARD CONTENT -->
+<div class="container">
+    <div class="card">
+        <h2>Post Player Requirement</h2>
+
+        <form method="post">
+            <input name="role" placeholder="Required Role (Leg Spinner)" required>
+
+            <!-- REAL APPLICATION LOCATION -->
+            <select name="location" required>
+                <option value="">Select Location</option>
+                <option>Chennai</option>
+                <option>Coimbatore</option>
+                <option>Madurai</option>
+                <option>Salem</option>
+                <option>Trichy</option>
+                <option>Erode</option>
+            </select>
+
+            <button>Find Players</button>
+        </form>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <a href="/matches">
+            <button>View Matching Players</button>
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

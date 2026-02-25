@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.user.username }} – SportsLink{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+  <a href="{{ url_for('view_players') }}" class="back-link">← Back to Players</a>
+
+  <div class="card profile-detail">
+    <div class="detail-header">
+
+      <!-- Profile Photo -->
+      {% if profile.user.avatar and profile.user.avatar != 'default.png' %}
+        <img src="{{ url_for('static', filename='uploads/' + profile.user.avatar) }}"
+             class="avatar-lg-img"/>
+      {% else %}
+        <div class="avatar-lg">{{ profile.user.username[0].upper() }}</div>
+      {% endif %}
+
+      <div>
+        <h1>{{ profile.user.username }}</h1>
+        <span class="position-badge position-badge-lg">{{ profile.position }}</span>
+        <span class="sport-badge">{{ profile.sport }}</span>
+
+        <!-- Star Rating Display -->
+        <div class="rating-display" style="margin-top:8px">
+          {% set avg = profile.avg_rating() %}
+          {% for i in range(1, 6) %}
+            <span class="star {% if i <= avg %}star-filled{% endif %}">★</span>
+          {% endfor %}
+          <span class="rating-num">{{ avg }}/5</span>
+          <small>({{ profile.ratings|length }} reviews)</small>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">
+          {% if current_user.id != profile.user_id %}
+            <a href="{{ url_for('chat', user_id=profile.user_id) }}"
+               class="btn btn-primary btn-sm">💬 Message</a>
+            <a href="{{ url_for('compare_players') }}?p1={{ profile.id }}"
+               class="btn btn-outline btn-sm">⚖️ Compare</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Stats Pills -->
+      <div class="profile-stats" style="margin-left:auto; text-align:right">
+        <div class="stat-pill">👁 {{ profile.profile_views }} views</div>
+        <div class="stat-pill">🏅 {{ profile.achievements|length }} badges</div>
+        <div class="stat-pill">⭐ {{ profile.avg_rating() }}/5 rating</div>
+      </div>
+
+    </div>
+
+    <!-- Details + Skills -->
+    <div class="detail-grid">
+      <div class="detail-section">
+        <h3>Details</h3>
+        <p><strong>Experience:</strong> {{ profile.experience_years }} year(s)</p>
+        <p><strong>Location:</strong> {{ profile.location or 'Not specified' }}</p>
+      </div>
+      <div class="detail-section">
+        <h3>Skills</h3>
+        <div class="skills-row">
+          {% for skill in profile.skills_list() %}
+            <span class="skill-tag">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Bio -->
+    {% if profile.bio %}
+    <div class="detail-section">
+      <h3>About</h3>
+      <p>{{ profile.bio }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Achievements -->
+    {% if profile.achievements %}
+    <div class="detail-section">
+      <h3>🏅 Achievements & Badges</h3>
+      <div class="achievements-list">
+        {% for ach in profile.achievements %}
+        <div class="achievement-card achievement-card-view">
+          <span class="ach-icon">{{ ach.badge_icon }}</span>
+          <div class="ach-info">
+            <strong>{{ ach.title }}</strong>
+            {% if ach.date_earned %}<small>{{ ach.date_earned }}</small>{% endif %}
+            {% if ach.description %}<p>{{ ach.description }}</p>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Rate This Player (Teams Only) -->
+    {% if current_user.role == 'team' and current_user.id != profile.user_id %}
+    <div class="detail-section rating-section">
+      <h3>⭐ Rate This Player</h3>
+      <form method="POST"
+            action="{{ url_for('rate_player', player_id=profile.id) }}"
+            class="rating-form">
+
+        <!-- Star Picker -->
+        <div class="star-picker" id="starPicker">
+          {% for i in range(1, 6) %}
+            <span class="star-pick" data-val="{{ i }}"
+              style="color:{% if existing_rating and existing_rating.rating >= i %}#f59e0b{% else %}#d1d5db{% endif %}">
+              ★
+            </span>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="rating" id="ratingInput"
+               value="{{ existing_rating.rating if existing_rating else 0 }}"/>
+
+        <div class="form-group" style="margin-top:10px">
+          <textarea name="review" rows="2"
+                    placeholder="Leave a review (optional)..."
+                    style="width:100%;padding:8px;border:1px solid var(--border);
+                           border-radius:8px;font-family:inherit">
+            {{- existing_rating.review if existing_rating else '' -}}
+          </textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-sm">
+          {% if existing_rating %}Update Rating{% else %}Submit Rating{% endif %}
+        </button>
+      </form>
+
+      <!-- Show existing reviews -->
+      {% if profile.ratings %}
+      <div class="reviews-list" style="margin-top:16px">
+        {% for r in profile.ratings %}
+        <div class="review-item">
+          <div class="review-header">
+            <strong>{{ r.rater.username }}</strong>
+            <span class="stars-small">
+              {% for i in range(1, 6) %}
+                <span style="color:{% if i <= r.rating %}#f59e0b{% else %}#d1d5db{% endif %}">★</span>
+              {% endfor %}
+            </span>
+            <small>{{ r.created_at.strftime('%b %d, %Y') }}</small>
+          </div>
+          {% if r.review %}
+            <p class="review-body">{{ r.review }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+    {% endif %}
+
+    <!-- Location Map -->
+    {% if profile.location %}
+    <div class="detail-section">
+      <h3>📍 Location</h3>
+      <div class="map-container">
+        <iframe
+          src="https://maps.google.com/maps?q={{ profile.location|urlencode }}&output=embed&z=10"
+          width="100%" height="250"
+          style="border:0; border-radius:10px;"
+          allowfullscreen="" loading="lazy">
+        </iframe>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+// Interactive star picker
+const stars = document.querySelectorAll('.star-pick');
+const input = document.getElementById('ratingInput');
+if (stars.length && input) {
+  stars.forEach(star => {
+    star.addEventListener('mouseover', function () {
+      const val = +this.dataset.val;
+      stars.forEach(s => {
+        s.style.color = +s.dataset.val <= val ? '#f59e0b' : '#d1d5db';
+      });
+    });
+    star.addEventListener('mouseout', function () {
+      const cur = +(input.value || 0);
+      stars.forEach(s => {
+        s.style.color = +s.dataset.val <= cur ? '#f59e0b' : '#d1d5db';
+      });
+    });
+    star.addEventListener('click', function () {
+      input.value = this.dataset.val;
+      const val   = +this.dataset.val;
+      stars.forEach(s => {
+        s.style.color = +s.dataset.val <= val ? '#f59e0b' : '#d1d5db';
+      });
+    });
+  });
+}
+</script>
+
+{% endblock %}

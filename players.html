@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Browse Players – SportsLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Browse Players</h1>
+  <p>{{ players|length }} player(s) found</p>
+</div>
+
+<div class="card filter-bar">
+  <form method="GET" action="{{ url_for('view_players') }}" class="filter-form">
+    <input type="text" name="sport"     placeholder="Sport"    value="{{ filters.sport }}"/>
+    <input type="text" name="position"  placeholder="Position" value="{{ filters.position }}"/>
+    <input type="text" name="skill"     placeholder="Skill"    value="{{ filters.skill }}"/>
+    <input type="text" name="location"  placeholder="📍 Location" value="{{ filters.location }}"/>
+    <button type="submit" class="btn btn-primary">Search</button>
+    {% if filters.sport or filters.position or filters.skill or filters.location %}
+      <a href="{{ url_for('view_players') }}" class="btn btn-outline">Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+{% if players %}
+  <div class="cards-grid">
+    {% for player in players %}
+    <div class="card player-card">
+      <div class="player-card-header">
+        {% if player.user.avatar and player.user.avatar != 'default.png' %}
+          <img src="{{ url_for('static', filename='uploads/' + player.user.avatar) }}" class="player-avatar-img"/>
+        {% else %}
+          <div class="player-avatar">{{ player.user.username[0].upper() }}</div>
+        {% endif %}
+        <div>
+          <h3>{{ player.user.username }}</h3>
+          <span class="position-badge">{{ player.position }}</span>
+        </div>
+      </div>
+      <div class="player-meta">
+        <span>🏅 {{ player.sport }}</span>
+        <span>📅 {{ player.experience_years }} yr(s)</span>
+        {% if player.location %}
+          <span>
+            📍 <a href="https://maps.google.com/?q={{ player.location | urlencode }}"
+                 target="_blank" class="location-link">{{ player.location }}</a>
+          </span>
+        {% endif %}
+      </div>
+      <div class="skills-row">
+        {% for skill in player.skills_list()[:4] %}
+          <span class="skill-tag">{{ skill }}</span>
+        {% endfor %}
+        {% if player.skills_list()|length > 4 %}
+          <span class="skill-tag skill-more">+{{ player.skills_list()|length - 4 }} more</span>
+        {% endif %}
+      </div>
+      {% if player.achievements %}
+        <div style="margin:6px 0">
+          {% for ach in player.achievements[:3] %}
+            <span title="{{ ach.title }}">{{ ach.badge_icon }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <a href="{{ url_for('player_detail', player_id=player.id) }}" class="btn btn-outline btn-sm">View Profile</a>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-card card">
+    <div class="empty-icon">🔍</div>
+    <p>No players found.</p>
+    <a href="{{ url_for('view_players') }}" class="btn btn-outline">Clear Filters</a>
+  </div>
+{% endif %}
+{% endblock %}

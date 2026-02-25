@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Compare Players – SportsLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>⚖️ Player Comparison</h1>
+  <p>Compare two players side by side</p>
+</div>
+
+<!-- Selector -->
+<div class="card filter-bar">
+  <form method="GET" action="{{ url_for('compare_players') }}" class="filter-form">
+    <select name="p1" required>
+      <option value="">Select Player 1</option>
+      {% for player in all_players %}
+        <option value="{{ player.id }}" {% if p1 and p1.id == player.id %}selected{% endif %}>
+          {{ player.user.username }} ({{ player.sport }})
+        </option>
+      {% endfor %}
+    </select>
+    <span style="font-size:1.5rem">⚖️</span>
+    <select name="p2" required>
+      <option value="">Select Player 2</option>
+      {% for player in all_players %}
+        <option value="{{ player.id }}" {% if p2 and p2.id == player.id %}selected{% endif %}>
+          {{ player.user.username }} ({{ player.sport }})
+        </option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Compare</button>
+  </form>
+</div>
+
+{% if p1 and p2 and comparison %}
+<div class="compare-grid">
+
+  <!-- Player 1 Card -->
+  <div class="card compare-card compare-left">
+    {% if p1.user.avatar and p1.user.avatar != 'default.png' %}
+      <img src="{{ url_for('static', filename='uploads/' + p1.user.avatar) }}" class="compare-avatar"/>
+    {% else %}
+      <div class="compare-avatar-letter">{{ p1.user.username[0].upper() }}</div>
+    {% endif %}
+    <h2>{{ p1.user.username }}</h2>
+    <span class="sport-badge">{{ p1.sport }}</span>
+    <span class="position-badge">{{ p1.position }}</span>
+
+    <div class="compare-stats">
+      <div class="cstat"><span class="cstat-num">{{ p1.experience_years }}</span><span>Years Exp</span></div>
+      <div class="cstat"><span class="cstat-num">{{ p1.avg_rating() }}/5</span><span>Rating</span></div>
+      <div class="cstat"><span class="cstat-num">{{ p1.profile_views }}</span><span>Views</span></div>
+      <div class="cstat"><span class="cstat-num">{{ p1.achievements|length }}</span><span>Badges</span></div>
+    </div>
+
+    <div class="compare-score-wrap">
+      <div class="compare-score">{{ comparison.p1_score|round|int }}</div>
+      <small>Overall Score</small>
+    </div>
+
+    <div class="skills-row" style="justify-content:center">
+      {% for skill in p1.skills_list() %}
+        <span class="skill-tag {% if skill.lower() in comparison.common_skills %}skill-match{% endif %}">
+          {{ skill }}
+        </span>
+      {% endfor %}
+    </div>
+
+    <a href="{{ url_for('player_detail', player_id=p1.id) }}" class="btn btn-outline btn-sm" style="margin-top:12px">
+      View Full Profile
+    </a>
+  </div>
+
+  <!-- VS + Common Skills -->
+  <div class="compare-middle">
+    <div class="vs-badge">VS</div>
+    {% if comparison.common_skills %}
+    <div class="common-skills-box">
+      <small>Common Skills</small>
+      {% for skill in comparison.common_skills %}
+        <span class="skill-tag skill-match">{{ skill }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Winner badge -->
+    {% if comparison.p1_score > comparison.p2_score %}
+      <div class="winner-badge">🏆 {{ p1.user.username }} Wins!</div>
+    {% elif comparison.p2_score > comparison.p1_score %}
+      <div class="winner-badge">🏆 {{ p2.user.username }} Wins!</div>
+    {% else %}
+      <div class="winner-badge">🤝 It's a Tie!</div>
+    {% endif %}
+  </div>
+
+  <!-- Player 2 Card -->
+  <div class="card compare-card compare-right">
+    {% if p2.user.avatar and p2.user.avatar != 'default.png' %}
+      <img src="{{ url_for('static', filename='uploads/' + p2.user.avatar) }}" class="compare-avatar"/>
+    {% else %}
+      <div class="compare-avatar-letter">{{ p2.user.username[0].upper() }}</div>
+    {% endif %}
+    <h2>{{ p2.user.username }}</h2>
+    <span class="sport-badge">{{ p2.sport }}</span>
+    <span class="position-badge">{{ p2.position }}</span>
+
+    <div class="compare-stats">
+      <div class="cstat"><span class="cstat-num">{{ p2.experience_years }}</span><span>Years Exp</span></div>
+      <div class="cstat"><span class="cstat-num">{{ p2.avg_rating() }}/5</span><span>Rating</span></div>
+      <div class="cstat"><span class="cstat-num">{{ p2.profile_views }}</span><span>Views</span></div>
+      <div class="cstat"><span class="cstat-num">{{ p2.achievements|length }}</span><span>Badges</span></div>
+    </div>
+
+    <div class="compare-score-wrap">
+      <div class="compare-score">{{ comparison.p2_score|round|int }}</div>
+      <small>Overall Score</small>
+    </div>
+
+    <div class="skills-row" style="justify-content:center">
+      {% for skill in p2.skills_list() %}
+        <span class="skill-tag {% if skill.lower() in comparison.common_skills %}skill-match{% endif %}">
+          {{ skill }}
+        </span>
+      {% endfor %}
+    </div>
+
+    <a href="{{ url_for('player_detail', player_id=p2.id) }}" class="btn btn-outline btn-sm" style="margin-top:12px">
+      View Full Profile
+    </a>
+  </div>
+
+</div>
+{% endif %}
+{% endblock %}

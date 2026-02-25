@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ other_user.username }} – SportsLink{% endblock %}
+
+{% block content %}
+<div class="chat-page">
+  <div class="chat-header card">
+    {% if other_user.avatar and other_user.avatar != 'default.png' %}
+      <img src="{{ url_for('static', filename='uploads/' + other_user.avatar) }}" class="conv-avatar-img"/>
+    {% else %}
+      <div class="conv-avatar">{{ other_user.username[0].upper() }}</div>
+    {% endif %}
+    <div>
+      <strong>{{ other_user.username }}</strong>
+      <span class="badge badge-{{ other_user.role }}">{{ other_user.role }}</span>
+    </div>
+    <a href="{{ url_for('messages') }}" class="btn btn-outline btn-sm" style="margin-left:auto">← Back</a>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages" id="chatMessages">
+    {% if chat_messages %}
+      {% for msg in chat_messages %}
+      <div class="msg-bubble {% if msg.sender_id == current_user.id %}msg-sent{% else %}msg-recv{% endif %}">
+        <p>{{ msg.body }}</p>
+        <small>{{ msg.created_at.strftime('%b %d, %H:%M') }}</small>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="chat-empty">
+        <p>No messages yet. Say hello! 👋</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Input Box -->
+  <div class="chat-input-area card">
+    <form method="POST" action="{{ url_for('chat', user_id=other_user.id) }}" class="chat-form">
+      <input type="text" name="body" placeholder="Type a message..." required autocomplete="off" autofocus/>
+      <button type="submit" class="btn btn-primary">Send ➤</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Auto scroll to bottom of chat
+  const chatBox = document.getElementById('chatMessages');
+  if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}{{ req.team_name }} – SportsLink{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+  <a href="{{ url_for('view_requirements') }}" class="back-link">← Back</a>
+
+  <div class="card profile-detail">
+    <div class="detail-header">
+      <div class="avatar-lg">{{ req.team_name[0].upper() }}</div>
+      <div>
+        <h1>{{ req.team_name }}</h1>
+        <span class="position-badge position-badge-lg">{{ req.position }}</span>
+        <span class="sport-badge">{{ req.sport }}</span>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-section">
+        <h3>Requirements</h3>
+        <p><strong>Min Experience:</strong> {{ req.min_experience }} yr(s)</p>
+        <p><strong>Location:</strong> {{ req.location or 'Not specified' }}</p>
+      </div>
+      <div class="detail-section">
+        <h3>Required Skills</h3>
+        <div class="skills-row">
+          {% for skill in req.skills_list() %}
+            <span class="skill-tag skill-required">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    {% if req.description %}
+    <div class="detail-section">
+      <h3>Details</h3>
+      <p>{{ req.description }}</p>
+    </div>
+    {% endif %}
+
+    {% if current_user.role == 'player' %}
+    <div class="interest-section">
+      {% if already_interested %}
+        <div class="interest-confirmed">
+          <span class="interest-tick">✅</span>
+          <span>You have expressed interest!</span>
+        </div>
+        <form method="POST" action="{{ url_for('withdraw_interest', req_id=req.id) }}"
+              onsubmit="return confirm('Withdraw interest?')">
+          <button type="submit" class="btn btn-outline btn-sm" style="margin-top:10px">
+            Withdraw Interest
+          </button>
+        </form>
+      {% else %}
+        <form method="POST" action="{{ url_for('express_interest', req_id=req.id) }}">
+          <button type="submit" class="btn btn-interested">🙋 I'm Interested</button>
+        </form>
+        <small class="interest-hint">Let this team know you're interested</small>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if current_user.role == 'team' and req.user_id == current_user.id %}
+    <div class="interest-section">
+      <h3>👥 Interested Players</h3>
+      {% if interested_players %}
+        <p class="interest-count">{{ interested_players|length }} player(s)</p>
+        <div class="interested-list">
+          {% for interest in interested_players %}
+          <div class="interested-player-row">
+            <div class="avatar-sm">{{ interest.player.username[0].upper() }}</div>
+            <div>
+              <strong>{{ interest.player.username }}</strong>
+              {% if interest.player.player_profile %}
+                <span class="text-muted"> · {{ interest.player.player_profile.sport }}</span>
+              {% endif %}
+            </div>
+            {% if interest.player.player_profile %}
+              <a href="{{ url_for('player_detail', player_id=interest.player.player_profile.id) }}"
+                 class="btn btn-sm btn-outline" style="margin-left:auto">View</a>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-state">No players expressed interest yet.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── 🤖 AI Recommendations ── -->
+  {% if ai_recs %}
+  <div class="ai-section">
+    <div class="ai-header">
+      <span class="ai-icon">🤖</span>
+      <div>
+        <h2>AI Recommended Players</h2>
+        <p>Smart picks based on skill match, experience, rating and location</p>
+      </div>
+    </div>
+
+    {% for rec in ai_recs %}
+    <div class="card ai-card">
+      <div class="ai-card-top">
+        <div class="avatar-sm">{{ rec.player.user.username[0].upper() }}</div>
+        <div class="ai-card-info">
+          <strong>{{ rec.player.user.username }}</strong>
+          <span>{{ rec.player.position }} · {{ rec.player.sport }}</span>
+        </div>
+
+        <!-- AI Confidence Meter -->
+        <div class="ai-confidence">
+          <span class="ai-score-label">AI Score: {{ rec.ai_score }}</span>
+          <div class="ai-bar">
+            <div class="ai-bar-fill" style="width:{{ [rec.confidence, 100]|min }}%"></div>
+          </div>
+          <span class="confidence-pct">{{ [rec.confidence, 100]|min }}%</span>
+        </div>
+      </div>
+
+      <!-- Breakdown badges -->
+      <div class="ai-breakdown">
+        <span class="breakdown-item" title="Skill Match">
+          🎯 Skills {{ rec.breakdown.skill_match }}pts
+        </span>
+        <span class="breakdown-item" title="Sport">
+          🏅 Sport {{ rec.breakdown.sport }}pts
+        </span>
+        <span class="breakdown-item" title="Experience">
+          📅 Exp {{ rec.breakdown.experience }}pts
+        </span>
+        <span class="breakdown-item" title="Rating">
+          ⭐ Rating {{ rec.breakdown.rating }}pts
+        </span>
+        {% if rec.breakdown.location > 0 %}
+        <span class="breakdown-item breakdown-location" title="Same city">
+          📍 Local +{{ rec.breakdown.location }}pts
+        </span>
+        {% endif %}
+      </div>
+
+      {% if rec.matched_skills %}
+      <div class="skills-row">
+        {% for skill in rec.matched_skills %}
+          <span class="skill-tag skill-match">✓ {{ skill }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <a href="{{ url_for('player_detail', player_id=rec.player.id) }}"
+         class="btn btn-primary btn-sm">View Profile</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ── 🎨 Animated Match Cards ── -->
+  <div class="section-header">
+    <h2>🎯 All Matched Players</h2>
+    <span class="badge">{{ matches|length }}</span>
+  </div>
+
+  {% if matches %}
+    {% for match in matches %}
+    <div class="card match-card animated-card" style="--delay: {{ loop.index0 * 0.1 }}s">
+      <div class="match-header">
+        <div class="avatar-sm">{{ match.player.user.username[0].upper() }}</div>
+        <div class="match-info">
+          <strong>{{ match.player.user.username }}</strong>
+          <span>{{ match.player.position }} · {{ match.player.sport }}</span>
+        </div>
+        <div class="match-score-wrap">
+          <span class="match-score">{{ match.score }} pts</span>
+          {% set max_score = req.skills_list()|length + 6 %}
+          <div class="score-bar">
+            <div class="score-fill animated-fill"
+                 data-width="{{ [[(match.score / max_score * 100)|int, 100]|min, 0]|max }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Star rating display -->
+      <div class="player-rating-row">
+        {% set avg = match.player.avg_rating() %}
+        {% for i in range(1, 6) %}
+          <span class="star {% if i <= avg %}star-filled{% endif %}">★</span>
+        {% endfor %}
+        <small>({{ match.player.ratings|length }} reviews)</small>
+      </div>
+
+      <div class="match-details">
+        <span>📅 {{ match.player.experience_years }} yr(s)</span>
+        {% if match.player.location %}
+          <span>📍 {{ match.player.location }}</span>
+        {% endif %}
+        <span>👁 {{ match.player.profile_views }} views</span>
+      </div>
+
+      {% if match.matched_skills %}
+      <div class="matched-skills">
+        <small>Matching:</small>
+        {% for skill in match.matched_skills %}
+          <span class="skill-tag skill-match">✓ {{ skill }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <a href="{{ url_for('player_detail', player_id=match.player.id) }}"
+         class="btn btn-outline btn-sm">View Profile</a>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-card card">
+      <div class="empty-icon">🤷</div>
+      <p>No matching players found yet.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

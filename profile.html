@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}{% if profile %}Edit{% else %}Create{% endif %} Profile – SportsLink{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <h2>{% if profile %}Edit Your Profile{% else %}Create Your Player Profile{% endif %}</h2>
+    <p class="form-subtitle">Showcase your skills so teams can find you</p>
+
+    <form method="POST" action="{{ url_for('player_profile') }}" enctype="multipart/form-data" novalidate>
+
+      <!-- ── Profile Photo ── -->
+      <div class="form-group avatar-upload-group">
+        <label>Profile Photo</label>
+        <div class="avatar-upload-row">
+          <div class="avatar-preview-wrap">
+            {% if current_user.avatar and current_user.avatar != 'default.png' %}
+              <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}"
+                   class="avatar-preview" id="avatarPreview"/>
+            {% else %}
+              <div class="avatar-preview avatar-placeholder" id="avatarPreview">
+                {{ current_user.username[0].upper() }}
+              </div>
+            {% endif %}
+          </div>
+          <div>
+            <input type="file" id="avatar" name="avatar" accept="image/*" onchange="previewAvatar(this)"/>
+            <small>JPG, PNG or GIF · Max 2MB · Auto resized to 200×200</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sport">Sport *</label>
+          <select id="sport" name="sport" required>
+            <option value="">– Select Sport –</option>
+            {% set sports = ['Football','Basketball','Cricket','Tennis','Volleyball','Baseball','Rugby','Hockey','Swimming','Athletics','Badminton','Table Tennis'] %}
+            {% for s in sports %}
+              <option value="{{ s }}" {% if profile and profile.sport == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="position">Position *</label>
+          <input type="text" id="position" name="position"
+                 placeholder="e.g. Midfielder" value="{{ profile.position if profile else '' }}" required/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="skills">Skills <span class="hint">(comma-separated)</span> *</label>
+        <input type="text" id="skills" name="skills"
+               placeholder="e.g. dribbling, shooting, defending"
+               value="{{ profile.skills if profile else '' }}" required/>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="experience_years">Years of Experience</label>
+          <input type="number" id="experience_years" name="experience_years" min="0" max="50"
+                 value="{{ profile.experience_years if profile else 0 }}"/>
+        </div>
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input type="text" id="location" name="location"
+                 placeholder="e.g. Mumbai, India"
+                 value="{{ profile.location if profile else '' }}"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="bio">Bio / About You</label>
+        <textarea id="bio" name="bio" rows="4"
+                  placeholder="Tell teams about yourself...">{{ profile.bio if profile else '' }}</textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          {% if profile %}Update Profile{% else %}Create Profile{% endif %}
+        </button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+
+    <!-- ── Achievements Section ── -->
+    {% if profile %}
+    <div class="achievements-section">
+      <h3>🏅 Achievements & Badges</h3>
+
+      {% if profile.achievements %}
+        <div class="achievements-list">
+          {% for ach in profile.achievements %}
+          <div class="achievement-card">
+            <span class="ach-icon">{{ ach.badge_icon }}</span>
+            <div class="ach-info">
+              <strong>{{ ach.title }}</strong>
+              {% if ach.date_earned %}<small>{{ ach.date_earned }}</small>{% endif %}
+              {% if ach.description %}<p>{{ ach.description }}</p>{% endif %}
+            </div>
+            <form method="POST" action="{{ url_for('delete_achievement', ach_id=ach.id) }}"
+                  onsubmit="return confirm('Delete this achievement?')">
+              <button type="submit" class="btn btn-sm btn-danger">✕</button>
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-state">No achievements yet. Add your first one!</p>
+      {% endif %}
+
+      <!-- Add Achievement Form -->
+      <div class="add-achievement-form">
+        <h4>+ Add Achievement</h4>
+        <form method="POST" action="{{ url_for('add_achievement') }}">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Title *</label>
+              <input type="text" name="title" placeholder="e.g. Best Striker 2023" required/>
+            </div>
+            <div class="form-group">
+              <label>Year</label>
+              <input type="text" name="date_earned" placeholder="e.g. 2023"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Badge Icon (emoji)</label>
+              <input type="text" name="badge_icon" placeholder="🏅" maxlength="5" value="🏅"/>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" name="description" placeholder="Short description (optional)"/>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Add Achievement</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+function previewAvatar(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById('avatarPreview');
+      preview.outerHTML = `<img src="${e.target.result}" class="avatar-preview" id="avatarPreview"/>`;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

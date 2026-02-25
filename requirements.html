@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Team Openings – SportsLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Team Openings</h1>
+  <p>{{ requirements|length }} opening(s) available</p>
+</div>
+
+<div class="card filter-bar">
+  <form method="GET" action="{{ url_for('view_requirements') }}" class="filter-form">
+    <input type="text" name="sport"    placeholder="Sport"    value="{{ filters.sport }}"/>
+    <input type="text" name="position" placeholder="Position" value="{{ filters.position }}"/>
+    <button type="submit" class="btn btn-primary">Search</button>
+    {% if filters.sport or filters.position %}
+      <a href="{{ url_for('view_requirements') }}" class="btn btn-outline">Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+{% if requirements %}
+  <div class="cards-grid">
+    {% for req in requirements %}
+    <div class="card req-card">
+      <div class="req-card-header">
+        <div class="team-avatar">{{ req.team_name[0].upper() }}</div>
+        <div>
+          <h3>{{ req.team_name }}</h3>
+          <span class="position-badge">{{ req.position }}</span>
+        </div>
+        <!-- Show interested badge if player already applied -->
+        {% if req.id in interested_ids %}
+          <span class="badge-interested" style="margin-left:auto">✅ Interested</span>
+        {% endif %}
+      </div>
+      <div class="player-meta">
+        <span>🏅 {{ req.sport }}</span>
+        <span>📅 {{ req.min_experience }}+ yr(s)</span>
+        {% if req.location %}<span>📍 {{ req.location }}</span>{% endif %}
+      </div>
+      <div class="skills-row">
+        {% for skill in req.skills_list()[:4] %}
+          <span class="skill-tag skill-required">{{ skill }}</span>
+        {% endfor %}
+      </div>
+      <!-- Interested count -->
+      <small class="interest-meta">🙋 {{ req.interests|length }} interested</small>
+      <a href="{{ url_for('view_requirement', req_id=req.id) }}" class="btn btn-outline btn-sm" style="margin-top:8px">View & Apply</a>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-card card">
+    <div class="empty-icon">📋</div>
+    <p>No openings found.</p>
+  </div>
+{% endif %}
+{% endblock %}

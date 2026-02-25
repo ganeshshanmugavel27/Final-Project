@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Matched Players | SportsLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR (Logged-in) -->
+<div class="navbar">
+    <div class="logo">SportsLink</div>
+
+    <div class="nav-links">
+        <a href="/search">Search</a>
+        <a href="/connections">Connections</a>
+    </div>
+
+    <div class="profile-menu">
+        <img src="https://i.imgur.com/6VBx3io.png" class="avatar">
+        <div class="dropdown">
+            <a href="/profile">My Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="container">
+    <h2 style="margin-bottom:20px;">Matched Players</h2>
+
+    <div class="grid">
+        {% for p in players %}
+        <div class="card">
+            <h3>{{ p.name }}</h3>
+            <p><b>{{ p.role }}</b> • {{ p.location }}</p>
+            <p>{{ p.description }}</p>
+        </div>
+        {% else %}
+        <p>No matching players found.</p>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>

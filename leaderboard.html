@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard – SportsLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>🏆 Player Leaderboard</h1>
+  <p>Top ranked players by rating, experience, skills and popularity</p>
+</div>
+
+<!-- Sport Filter -->
+<div class="card filter-bar">
+  <form method="GET" action="{{ url_for('leaderboard') }}" class="filter-form">
+    <select name="sport" onchange="this.form.submit()">
+      <option value="">All Sports</option>
+      {% for sport in all_sports %}
+        <option value="{{ sport }}" {% if sport_filter == sport %}selected{% endif %}>
+          {{ sport }}
+        </option>
+      {% endfor %}
+    </select>
+    {% if sport_filter %}
+      <a href="{{ url_for('leaderboard') }}" class="btn btn-outline">Clear</a>
+    {% endif %}
+  </form>
+</div>
+
+{% if board %}
+<div class="leaderboard-list">
+  {% for entry in board %}
+  <div class="leaderboard-card {% if loop.index == 1 %}rank-gold{% elif loop.index == 2 %}rank-silver{% elif loop.index == 3 %}rank-bronze{% endif %}">
+
+    <!-- Rank -->
+    <div class="rank-badge">
+      {% if loop.index == 1 %}🥇
+      {% elif loop.index == 2 %}🥈
+      {% elif loop.index == 3 %}🥉
+      {% else %}<span class="rank-num">#{{ loop.index }}</span>
+      {% endif %}
+    </div>
+
+    <!-- Avatar -->
+    {% if entry.player.user.avatar and entry.player.user.avatar != 'default.png' %}
+      <img src="{{ url_for('static', filename='uploads/' + entry.player.user.avatar) }}" class="lb-avatar-img"/>
+    {% else %}
+      <div class="lb-avatar">{{ entry.player.user.username[0].upper() }}</div>
+    {% endif %}
+
+    <!-- Info -->
+    <div class="lb-info">
+      <strong>{{ entry.player.user.username }}</strong>
+      <div class="lb-meta">
+        <span>🏅 {{ entry.player.sport }}</span>
+        <span>📌 {{ entry.player.position }}</span>
+        <span>📅 {{ entry.player.experience_years }} yr(s)</span>
+        <span>👁 {{ entry.player.profile_views }} views</span>
+      </div>
+      <!-- Star rating -->
+      <div>
+        {% for i in range(1, 6) %}
+          <span style="color:{% if i <= entry.avg_rating %}#f59e0b{% else %}#d1d5db{% endif %}">★</span>
+        {% endfor %}
+        <small>{{ entry.avg_rating }}/5 ({{ entry.rating_count }} reviews)</small>
+      </div>
+    </div>
+
+    <!-- Score Bar -->
+    <div class="lb-score-wrap">
+      <div class="lb-score">{{ entry.composite }}</div>
+      <div class="lb-score-label">score</div>
+      <div class="score-bar" style="width:120px;margin-top:6px">
+        <div class="score-fill animated-fill"
+             data-width="{{ [entry.composite, 100]|min }}">
+        </div>
+      </div>
+    </div>
+
+    <a href="{{ url_for('player_detail', player_id=entry.player.id) }}"
+       class="btn btn-outline btn-sm">View</a>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="card empty-card">
+  <div class="empty-icon">🏆</div>
+  <p>No players on the leaderboard yet.</p>
+</div>
+{% endif %}
+{% endblock %}

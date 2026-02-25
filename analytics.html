@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Analytics – SportsLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📊 Analytics Dashboard</h1>
+  <p>Your performance insights</p>
+</div>
+
+{% if current_user.role == 'player' %}
+
+<!-- Player Analytics -->
+<div class="analytics-grid">
+
+  <div class="card stat-card">
+    <div class="stat-card-icon">👁</div>
+    <div class="stat-card-num">{{ total_views }}</div>
+    <div class="stat-card-label">Total Profile Views</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-card-icon">🙋</div>
+    <div class="stat-card-num">{{ interest_count }}</div>
+    <div class="stat-card-label">Openings Applied To</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-card-icon">🎯</div>
+    <div class="stat-card-num">{{ match_count }}</div>
+    <div class="stat-card-label">Active Matches</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-card-icon">⭐</div>
+    <div class="stat-card-num">{{ avg_rating }}/5</div>
+    <div class="stat-card-label">Avg Rating ({{ rating_count }} reviews)</div>
+  </div>
+
+</div>
+
+<!-- Profile Views Chart (last 7 days) -->
+<div class="card" style="margin-top:24px">
+  <h3>📈 Profile Views — Last 7 Days</h3>
+  <div class="bar-chart">
+    {% set max_views = views_data | map(attribute='count') | max if views_data else 1 %}
+    {% for day in views_data %}
+    <div class="bar-col">
+      <div class="bar-tooltip">{{ day.count }} views</div>
+      <div class="bar"
+           style="height:{{ [((day.count / [max_views, 1]|max) * 160)|int, 4]|max }}px">
+      </div>
+      <div class="bar-label">{{ day.day }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% else %}
+
+<!-- Team Analytics -->
+<div class="analytics-grid">
+
+  <div class="card stat-card">
+    <div class="stat-card-icon">📋</div>
+    <div class="stat-card-num">{{ requirements|length }}</div>
+    <div class="stat-card-label">Openings Posted</div>
+  </div>
+
+  <div class="card stat-card">
+    <div class="stat-card-icon">🙋</div>
+    <div class="stat-card-num">{{ total_interests }}</div>
+    <div class="stat-card-label">Total Interests Received</div>
+  </div>
+
+</div>
+
+<!-- Interests per Opening -->
+{% if req_interest_data %}
+<div class="card" style="margin-top:24px">
+  <h3>🙋 Interests per Opening</h3>
+  <div class="bar-chart">
+    {% set max_int = req_interest_data | map(attribute='count') | max if req_interest_data else 1 %}
+    {% for item in req_interest_data %}
+    <div class="bar-col">
+      <div class="bar-tooltip">{{ item.count }}</div>
+      <div class="bar bar-accent"
+           style="height:{{ [((item.count / [max_int, 1]|max) * 160)|int, 4]|max }}px">
+      </div>
+      <div class="bar-label">{{ item.name[:8] }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Sport Distribution -->
+{% if sport_data %}
+<div class="card" style="margin-top:24px">
+  <h3>🏅 Sport Distribution of Interested Players</h3>
+  <div class="donut-list">
+    {% set total = sport_data | map(attribute='count') | sum %}
+    {% for item in sport_data %}
+    <div class="donut-row">
+      <span class="donut-label">{{ item.sport }}</span>
+      <div class="donut-bar-wrap">
+        <div class="donut-bar"
+             style="width:{{ ((item.count / total) * 100)|int }}%">
+        </div>
+      </div>
+      <span class="donut-pct">{{ ((item.count / total) * 100)|int }}%</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}

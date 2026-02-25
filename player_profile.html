@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Profile</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">SportsLink</div>
+    <div class="profile-menu">
+        <img src="{{ url_for('static', filename='uploads/' + profile[6]) if profile and profile[6] else url_for('static', filename='default.png') }}"
+             class="avatar">
+        <div class="dropdown">
+            <a href="/profile">My Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+<div class="card">
+<h2>My Sports Profile</h2>
+
+<form method="post" enctype="multipart/form-data">
+<input name="sport" placeholder="Sport" required>
+<input name="role" placeholder="Role" required>
+<textarea name="description" placeholder="Experience"></textarea>
+<input name="skills" placeholder="Skills">
+<select name="location">
+<option>Chennai</option><option>Trichy</option>
+<option>Madurai</option><option>Salem</option>
+</select>
+<input type="file" name="photo">
+<button>Save</button>
+</form>
+</div>
+
+{% if profile %}
+<div class="card">
+<img src="{{ url_for('static', filename='uploads/' + profile[6]) if profile[6] else url_for('static', filename='default.png') }}"
+     style="width:80px;border-radius:50%;">
+<p><b>Role:</b> {{ profile[2] }}</p>
+<p><b>Skills:</b> {{ profile[5] }}</p>
+<p><b>Location:</b> {{ profile[4] }}</p>
+</div>
+{% endif %}
+</div>
+
+</body>
+</html>
