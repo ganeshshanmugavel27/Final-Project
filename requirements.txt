@@ -1,1 +1,10 @@
+<<<<<<< HEAD
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Werkzeug
+gunicorn
+Pillow
+=======
 flask
+>>>>>>> 0e7cc9ecdb012be05754775cca6fe167e424f146
